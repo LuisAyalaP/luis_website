@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0}
+  @keyframes ovFade{from{opacity:0}to{opacity:1}}
+  @keyframes ovRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  @keyframes arrowIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+
+<div style="position:relative;width:100%;min-height:100vh;background:#D4D5D4;font-family:'Hanken Grotesk','Helvetica Neue',Arial,sans-serif;color:#2A2A2B;overflow:hidden">
+
+  <div style="position:absolute;inset:0;filter:{{ contentFilter }};opacity:{{ revealO }};transform:{{ revealT }};transform-origin:center;transition:filter .35s cubic-bezier(.16,1,.3,1),opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)">
+
+  <!-- TOP LEFT — contact -->
+  <div style="position:absolute;left:48px;top:40px;z-index:30;display:flex;flex-direction:column;gap:6px;font-size:17px;line-height:1.4">
+    <a href="mailto:{{ email }}" onMouseEnter="{{ emailEnter }}" onMouseLeave="{{ emailLeave }}" style="color:#2A2A2B;font-weight:{{ emailWeight }};text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:{{ emailThickness }};text-decoration-color:{{ emailUnderline }};transition:text-decoration-color .18s cubic-bezier(.16,1,.3,1)">{{ email }}</a>
+    <span style="color:#9A9A99">{{ location }}</span>
+  </div>
+
+  <!-- CENTER STAGE — red mark + plant + name -->
+  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+
+    <!-- red mark (back) -->
+    <div style="position:absolute;width:min(46vw,680px);aspect-ratio:1.32/1;transform:skewX(-9deg);z-index:1">
+      <div style="display:flex;flex-direction:column;gap:4%;height:100%">
+        <div style="flex:1;background:{{ accent }};clip-path:polygon(0 0,100% 8%,100% 100%,0 92%);transform:translateX(-4rem)"></div>
+        <div style="flex:0.62;background:{{ accent }};clip-path:polygon(0 8%,100% 0,100% 92%,0 100%);transform:translateX(4rem)"></div>
+      </div>
+    </div>
+
+    <!-- name (front) -->
+    <h1 style="position:absolute;z-index:3;margin:0;text-align:center;pointer-events:none;font-weight:500;font-size:clamp(3.5rem,9vw,9rem);line-height:.9;letter-spacing:-.06em;text-transform:uppercase">
+      <span style="display:block;transform:translateX(-4rem)">{{ nameTop }}</span>
+      <span style="display:block;transform:translateX(4rem)">{{ nameBottom }}</span>
+    </h1>
+  </div>
+
+  <!-- BOTTOM LEFT — bio -->
+  <div style="position:absolute;left:48px;bottom:40px;z-index:30;max-width:288px">
+    <p style="margin:0;font-size:17px;line-height:1.45;color:#2A2A2B;text-wrap:pretty">{{ bio }}</p>
+  </div>
+
+  </div>
+
+  <!-- CASE OVERLAY — hover preview -->
+  <sc-if value="{{ showOverlay }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;pointer-events:none;background:rgba(212,213,212,0.4)">
+    <div style="width:min(560px,82vw);background:#FFFFFF;box-shadow:0 30px 90px rgba(0,0,0,.22);overflow:hidden;border:1px solid #D4D5D4;border-radius:12px;animation:ovRise .4s cubic-bezier(.16,1,.3,1)">
+      {{ activeImg }}
+      <div style="padding:34px 38px 40px">
+        <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9A9A99;margin-bottom:14px">{{ active.tag }}</div>
+        <h2 style="margin:0 0 16px;font-size:34px;font-weight:600;letter-spacing:-.02em;text-transform:uppercase">{{ active.name }}</h2>
+        <p style="margin:0;font-size:16px;line-height:1.5;color:#2A2A2B;text-wrap:pretty">{{ active.blurb }}</p>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- TOP RIGHT — language switch (stays sharp, above the overlay) -->
+  <div style="position:absolute;top:40px;right:48px;z-index:200;display:flex;align-items:center;gap:9px;font-size:14px;letter-spacing:.04em;opacity:{{ revealO }};transition:opacity .7s cubic-bezier(.16,1,.3,1)">
+    <span onClick="{{ setEn }}" style="cursor:pointer;color:{{ enColor }};font-weight:{{ enWeight }};transition:color .18s cubic-bezier(.16,1,.3,1)">EN</span>
+    <span style="color:#BFBFBE">/</span>
+    <span onClick="{{ setEs }}" style="cursor:pointer;color:{{ esColor }};font-weight:{{ esWeight }};transition:color .18s cubic-bezier(.16,1,.3,1)">ES</span>
+  </div>
+
+  <!-- BOTTOM RIGHT — selected work (stays sharp, above the overlay) -->
+  <div style="position:absolute;right:48px;bottom:40px;z-index:200;display:flex;flex-direction:column;align-items:flex-end;gap:14px;text-align:right;opacity:{{ revealO }};transition:opacity .7s cubic-bezier(.16,1,.3,1)">
+    <span style="font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9A9A99;margin-bottom:4px;white-space:nowrap">{{ selectedWork }}</span>
+    <sc-for list="{{ cases }}" as="item" hint-placeholder-count="5">
+      <a href="{{ item.href }}" target="_blank" rel="noopener noreferrer" onMouseEnter="{{ item.onEnter }}" onMouseLeave="{{ item.onLeave }}" style="color:#2A2A2B;font-size:22px;font-weight:{{ item.weight }};text-decoration:none;white-space:nowrap;display:inline-block;padding-bottom:3px;background-image:linear-gradient(#BFF500,#BFF500);background-repeat:no-repeat;background-position:0 100%;background-size:{{ item.usize }};transform:{{ item.shift }};transition:background-size .35s cubic-bezier(.16,1,.3,1),transform .35s cubic-bezier(.16,1,.3,1)">{{ item.name }}<sc-if value="{{ item.hot }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;margin-left:8px;vertical-align:middle;animation:arrowIn .25s cubic-bezier(.16,1,.3,1)"><svg height="22" viewBox="0 -960 960 960" width="22" fill="#2A2A2B"><path d="m216-160-56-56 464-464H360v-80h400v400h-80v-264L216-160Z"></path></svg></span></sc-if></a>
+    </sc-for>
+  </div>
+
+  <!-- INTRO — logo splash on first load -->
+  <sc-if value="{{ showLogo }}" hint-placeholder-val="{{ true }}">
+    <div style="position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;background:#D4D5D4;pointer-events:none;opacity:{{ logoOpacity }};transition:opacity .6s cubic-bezier(.16,1,.3,1)">
+      {{ logoImg }}
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1280, &quot;height&quot;: 720 },
+  &quot;accent&quot;: { &quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#BFF500&quot;, &quot;options&quot;: [&quot;#BFF500&quot;, &quot;#D51712&quot;, &quot;#2A2A2B&quot;, &quot;#1F6FEB&quot;] },
+  &quot;nameTop&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Luis&quot; },
+  &quot;nameBottom&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Ayala&quot; },
+  &quot;email&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;d.i.luisayala@gmail.com&quot; },
+  &quot;location&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Mexico City&quot; }
+}">
+class Component extends DCLogic {
+  state = { hovered: null, emailHover: false, lang: 'en', logoFading: false, reveal: false, introDone: false };
+
+  componentDidMount() {
+    this._t1 = setTimeout(() => this.setState({ logoFading: true, reveal: true }), 2000);
+    this._t2 = setTimeout(() => this.setState({ introDone: true }), 2750);
+  }
+  componentWillUnmount() {
+    clearTimeout(this._t1);
+    clearTimeout(this._t2);
+  }
+
+  renderVals() {
+    const es = this.state.lang === 'es';
+    const meta = [
+      { name: 'SportFX.ai', href: 'https://apps.apple.com/us/app/sportfx-ai/id6748971449', img: 'assets/case-SportFX.png' },
+      { name: 'Atlas FC', href: 'https://www.atlasfc.com.mx/', img: 'assets/case-AtlasFC.png' },
+      { name: 'Oroxco', href: 'https://orox-co.com/', img: 'assets/case-Orox.png' },
+      { name: 'Elite Last Mile', href: 'https://www.eliteindustrial.mx/', img: 'assets/case-Elite.png' },
+      { name: 'Texas Ranchers', href: 'https://ranchers.com/', img: 'assets/case-Texas.png' },
+    ];
+    const copyEn = [
+      { tag: 'Sports AI-driven app · UX/UI',
+        blurb: 'AI-powered biomechanics platform that turns any phone into a motion lab. Led end-to-end product design for an app that delivers pro-level 3D movement analysis and instant feedback for baseball, golf, softball, and more — no sensors, no labs. Upload a video, get coached. Built around the hook: \u201CTalk to Your Game.\u201D' },
+      { tag: 'Multipage + CMS blogs + API integrations',
+        blurb: 'Official digital home of one of Mexico\u2019s most storied Liga MX clubs. Led the Figma-to-Webflow build across a nine-section site, architecting a token-based design system from scratch and shipping interactive match, news, and membership experiences for a fan base in the millions.' },
+      { tag: 'Multipage + CMS catalogue',
+        blurb: 'B2B packaging manufacturer supplying the world\u2019s biggest FMCG brands. Designed and built the end-to-end marketing site, translating a 40-year industrial operation into a credibility-first narrative — comparison frameworks, proof-driven metrics, and frictionless paths to quote.' },
+      { tag: 'Multipage + CMS + maps integration',
+        blurb: 'Last-mile industrial real estate developer across four high-demand Mexican markets. Built a conversion-focused property platform with city-level filtering, anchoring the entire experience on one sharp promise: operate by month four, not year two.' },
+      { tag: 'Multipage + store + Klaviyo marketing integration',
+        blurb: 'Major League Pickleball franchise with a marquee ownership group. Shaped a bold lifestyle-brand experience across schedule, roster, store, and fan membership — engineering video-rich, engagement-first components that turn visitors into Ranchers Nation.' },
+    ];
+    const copyEs = [
+      { tag: 'App deportiva con IA · UX/UI',
+        blurb: 'Plataforma de biomecánica con IA que convierte cualquier teléfono en un laboratorio de movimiento. Lideré el diseño de producto de punta a punta de una app que ofrece análisis de movimiento 3D de nivel profesional y feedback instantáneo para béisbol, golf, softball y más — sin sensores, sin laboratorios. Sube un video y recibe coaching. Construida en torno al lema: \u201CTalk to Your Game.\u201D' },
+      { tag: 'Multipágina + blogs CMS + integraciones API',
+        blurb: 'Hogar digital oficial de uno de los clubes más emblemáticos de la Liga MX. Lideré la construcción de Figma a Webflow en un sitio de nueve secciones, definiendo desde cero un sistema de diseño basado en tokens y entregando experiencias interactivas de partidos, noticias y membresías para una afición de millones.' },
+      { tag: 'Multipágina + catálogo CMS',
+        blurb: 'Fabricante de empaque B2B que abastece a las marcas de consumo más grandes del mundo. Diseñé y construí el sitio de marketing de punta a punta, traduciendo una operación industrial de 40 años en una narrativa centrada en la credibilidad — marcos comparativos, métricas con respaldo y caminos sin fricción para cotizar.' },
+      { tag: 'Multipágina + CMS + integración de mapas',
+        blurb: 'Desarrollador de naves industriales de última milla en cuatro mercados mexicanos de alta demanda. Construí una plataforma de propiedades enfocada en conversión con filtrado por ciudad, anclando toda la experiencia en una promesa clara: opera en el mes cuatro, no en el año dos.' },
+      { tag: 'Multipágina + tienda + integración de marketing Klaviyo',
+        blurb: 'Franquicia de Major League Pickleball con un grupo propietario de primer nivel. Di forma a una experiencia de marca lifestyle audaz en calendario, roster, tienda y membresía — creando componentes ricos en video y centrados en el engagement que convierten visitantes en Ranchers Nation.' },
+    ];
+    const copy = es ? copyEs : copyEn;
+    const data = meta.map((m, i) => ({ ...m, tag: copy[i].tag, blurb: copy[i].blurb }));
+    const cases = data.map((c, i) => {
+      const hot = this.state.hovered === i;
+      return {
+        ...c,
+        hot,
+        shift: hot ? 'translateX(-14px)' : 'none',
+        usize: hot ? '100% 3px' : '0% 3px',
+        weight: hot ? 600 : 400,
+        onEnter: () => this.setState({ hovered: i }),
+        onLeave: () => this.setState({ hovered: null }),
+      };
+    });
+    const h = this.state.hovered;
+    if (h !== null) this._lastIdx = h;
+    const active = cases[h !== null ? h : (this._lastIdx ?? 0)];
+    return {
+      accent: this.props.accent ?? '#BFF500',
+      nameTop: this.props.nameTop ?? 'Luis',
+      nameBottom: this.props.nameBottom ?? 'Ayala',
+      email: this.props.email ?? 'd.i.luisayala@gmail.com',
+      emailUnderline: this.state.emailHover ? '#BFF500' : '#2A2A2B',
+      emailWeight: this.state.emailHover ? 600 : 400,
+      emailThickness: this.state.emailHover ? '2px' : '1px',
+      emailEnter: () => this.setState({ emailHover: true }),
+      emailLeave: () => this.setState({ emailHover: false }),
+      location: es ? 'Ciudad de México' : (this.props.location ?? 'Mexico City'),
+      bio: es
+        ? 'Diseñador de Producto y UX/UI movido por lo que hace actuar a las personas. Convierto la investigación de usuarios y los insights de comportamiento en interfaces limpias e intuitivas — desde entrevistas, pruebas de usabilidad y CSAT hasta sistemas de diseño y web responsiva en producción. Colaboro de cerca con desarrolladores, mantengo al usuario en el centro y fundamento cada decisión en datos y empatía.'
+        : 'Product & UX/UI designer driven by what makes people tick. I turn user research and behavioral insight into clean, intuitive interfaces — from interviews, usability studies, and CSAT to design systems and shipped responsive web. I partner closely with developers, keep users at the center, and ground every call in data and empathy.',
+      selectedWork: es ? 'Trabajo Seleccionado' : 'Selected Work',
+      setEn: () => this.setState({ lang: 'en' }),
+      setEs: () => this.setState({ lang: 'es' }),
+      enColor: es ? '#9A9A99' : '#2A2A2B',
+      esColor: es ? '#2A2A2B' : '#9A9A99',
+      enWeight: es ? 400 : 600,
+      esWeight: es ? 600 : 400,
+      cases,
+      active,
+      activeImg: React.createElement('img', {
+        src: active.img, alt: '',
+        style: { display: 'block', width: '100%', height: '260px', objectFit: 'contain', background: '#1A1A18' },
+      }),
+      showLogo: !this.state.introDone,
+      logoOpacity: this.state.logoFading ? 0 : 1,
+      revealO: this.state.reveal ? 1 : 0,
+      revealT: this.state.reveal ? 'scale(1)' : 'scale(0.965)',
+      logoImg: React.createElement('img', {
+        src: 'assets/logo.png', alt: '',
+        style: { width: '116px', height: '116px', display: 'block' },
+      }),
+      showOverlay: h !== null,
+      contentFilter: h !== null ? 'blur(7px)' : 'none',
+    };
+  }
+}
+</script>
+</body>
+</html>
